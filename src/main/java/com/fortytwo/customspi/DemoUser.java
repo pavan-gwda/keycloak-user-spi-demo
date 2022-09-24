@@ -1,4 +1,4 @@
-package dasniko.keycoak.user;
+package com.fortytwo.customspi;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ public class DemoUser {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = (firstName + "." + lastName).toLowerCase();
-        this.email = (firstName.replaceAll("\\s", "") + "." + lastName + "@flintstones.com").toLowerCase();
+        this.email = (firstName.replaceAll("\\s", "") + "." + lastName + "@localhost.com").toLowerCase();
         this.password = firstName.toLowerCase();
         this.enabled = enabled;
         this.created = created;

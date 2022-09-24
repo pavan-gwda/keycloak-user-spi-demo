@@ -1,4 +1,4 @@
-package dasniko.keycoak.user;
+package com.fortytwo.customspi;
 
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleContainerModel;
@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-/**
- * @author Niko Köbler, https://www.n-k.de, @dasniko
- */
 public class UserRoleModel implements RoleModel {
 
     private String name;

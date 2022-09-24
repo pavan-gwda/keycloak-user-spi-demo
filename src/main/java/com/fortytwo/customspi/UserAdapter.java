@@ -1,4 +1,4 @@
-package dasniko.keycoak.user;
+package com.fortytwo.customspi;
 
 import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentModel;
@@ -15,9 +15,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * @author Niko Köbler, http://www.n-k.de, @dasniko
- */
 public class UserAdapter extends AbstractUserAdapter.Streams {
 
     private final DemoUser user;

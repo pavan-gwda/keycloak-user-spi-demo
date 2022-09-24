@@ -1,13 +1,10 @@
-package dasniko.keycoak.user;
+package com.fortytwo.customspi;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Niko Köbler, http://www.n-k.de, @dasniko
- */
 class DemoRepository {
 
     private final List<DemoUser> users;
@@ -16,12 +13,12 @@ class DemoRepository {
         Long created = System.currentTimeMillis();
         List<String> roles = Collections.singletonList("stoneage");
         users = Arrays.asList(
-                new DemoUser("1", "Fred", "Flintstone", true, created, roles),
-                new DemoUser("2", "Wilma", "Flintstone", true, created, roles),
-                new DemoUser("3", "Pebbles", "Flintstone", true, created, roles),
-                new DemoUser("4", "Barney", "Rubble", true, created, roles),
-                new DemoUser("5", "Betty", "Rubble", true, created, Collections.emptyList()),
-                new DemoUser("6", "Bam Bam", "Rubble", false, created, Collections.emptyList())
+                new DemoUser("1", "Fred", "lastname", true, created, roles),
+                new DemoUser("2", "Wilma", "ls", true, created, roles),
+                new DemoUser("3", "Pebbles", "ln", true, created, roles),
+                new DemoUser("4", "Barney", "ls", true, created, roles),
+                new DemoUser("5", "Betty", "ln", true, created, Collections.emptyList()),
+                new DemoUser("6", "Bam Bam", "ln", false, created, Collections.emptyList())
         );
     }
 

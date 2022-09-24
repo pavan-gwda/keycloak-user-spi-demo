@@ -1,4 +1,4 @@
-package dasniko.keycoak.user;
+package com.fortytwo.customspi;
 
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
@@ -8,9 +8,6 @@ import org.keycloak.storage.UserStorageProviderFactory;
 
 import java.util.List;
 
-/**
- * @author Niko Köbler, http://www.n-k.de, @dasniko
- */
 public class DemoUserStorageProviderFactory implements UserStorageProviderFactory<DemoUserStorageProvider> {
 
     @Override
@@ -24,7 +21,7 @@ public class DemoUserStorageProviderFactory implements UserStorageProviderFactor
 
     @Override
     public String getId() {
-        return "demo-user-provider";
+        return "42-user-provider";
     }
 
     @Override
