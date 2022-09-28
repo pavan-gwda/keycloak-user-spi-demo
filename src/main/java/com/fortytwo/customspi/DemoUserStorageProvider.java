@@ -1,5 +1,7 @@
 package com.fortytwo.customspi;
 
+import com.fortytwo.customspi.external.UserClient;
+import com.fortytwo.customspi.external.UserClientHttp;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputUpdater;
@@ -16,10 +18,7 @@ import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DemoUserStorageProvider implements UserStorageProvider,
@@ -28,12 +27,14 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 
     private final KeycloakSession session;
     private final ComponentModel model;
-    private final DemoRepository repository;
+//    private final DemoRepository repository;
+    private final UserClient userHttpClient;
 
-    public DemoUserStorageProvider(KeycloakSession session, ComponentModel model, DemoRepository repository) {
+    public DemoUserStorageProvider(KeycloakSession session, ComponentModel model) {
         this.session = session;
         this.model = model;
-        this.repository = repository;
+//        this.repository = repository;
+        this.userHttpClient = new UserClientHttp(session,model);
     }
 
     @Override
@@ -46,13 +47,17 @@ public class DemoUserStorageProvider implements UserStorageProvider,
         return supportsCredentialType(credentialType);
     }
 
+
     @Override
     public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
         if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) {
             return false;
         }
         UserCredentialModel cred = (UserCredentialModel) input;
-        return repository.validateCredentials(user.getUsername(), cred.getChallengeResponse());
+
+        return Objects.requireNonNull(userHttpClient.getAllUsers().stream().filter(lUser -> lUser.getUsername().equalsIgnoreCase(user.getUsername()) || lUser.getEmail().equalsIgnoreCase(user.getUsername())).findFirst().orElse(null))
+                .getPassword().equals(cred.getChallengeResponse());
+
     }
 
     @Override
@@ -61,8 +66,17 @@ public class DemoUserStorageProvider implements UserStorageProvider,
             return false;
         }
         UserCredentialModel cred = (UserCredentialModel) input;
-        return repository.updateCredentials(user.getUsername(), cred.getChallengeResponse());
+        findUserByUsernameOrEmail(user.getUsername()).setPassword(cred.getChallengeResponse());
+        return true;
     }
+
+    DemoUser findUserByUsernameOrEmail(String username) {
+        return userHttpClient.getAllUsers()
+                .stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(username) || user.getEmail().equalsIgnoreCase(username))
+                .findFirst().orElse(null);
+    }
+
 
     @Override
     public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
@@ -80,14 +94,16 @@ public class DemoUserStorageProvider implements UserStorageProvider,
     @Override
     public UserModel getUserById(String id, RealmModel realm) {
         String externalId = StorageId.externalId(id);
-        return new UserAdapter(session, realm, model, repository.findUserById(externalId));
+        DemoUser foundUser = userHttpClient.getAllUsers().stream().filter(user -> user.getId().equals(externalId)).findFirst().orElse(null);
+        assert foundUser != null;
+        return new UserAdapter(session, realm, model, foundUser);
     }
 
     @Override
     public UserModel getUserByUsername(String username, RealmModel realm) {
-        DemoUser user = repository.findUserByUsernameOrEmail(username);
-        if (user != null) {
-            return new UserAdapter(session, realm, model, user);
+        DemoUser userFound = findUserByUsernameOrEmail(username);
+        if (userFound != null) {
+            return new UserAdapter(session, realm, model, userFound);
         }
         return null;
     }
@@ -99,12 +115,14 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 
     @Override
     public int getUsersCount(RealmModel realm) {
-        return repository.getUsersCount();
+        return  userHttpClient.getAllUsers().size();
     }
 
     @Override
     public List<UserModel> getUsers(RealmModel realm) {
-        return repository.getAllUsers().stream()
+        //before provisioning in keycloak call iam api
+        return userHttpClient.getAllUsers()
+                .stream()
                 .map(user -> new UserAdapter(session, realm, model, user))
                 .collect(Collectors.toList());
     }
@@ -116,7 +134,11 @@ public class DemoUserStorageProvider implements UserStorageProvider,
 
     @Override
     public List<UserModel> searchForUser(String search, RealmModel realm) {
-        return repository.findUsers(search).stream()
+        return userHttpClient.getAllUsers()
+                .stream()
+                .filter(user -> user.getUsername().contains(search) || user.getEmail().contains(search))
+                .collect(Collectors.toList())
+                .stream()
                 .map(user -> new UserAdapter(session, realm, model, user))
                 .collect(Collectors.toList());
     }

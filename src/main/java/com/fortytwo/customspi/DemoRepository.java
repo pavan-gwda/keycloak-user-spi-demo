@@ -20,6 +20,7 @@ class DemoRepository {
                 new DemoUser("5", "Betty", "ln", true, created, Collections.emptyList()),
                 new DemoUser("6", "Bam Bam", "ln", false, created, Collections.emptyList())
         );
+
     }
 
     List<DemoUser> getAllUsers() {
